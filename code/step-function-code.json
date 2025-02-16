@@ -1,0 +1,34 @@
+{
+  "QueryLanguage": "JSONPath",
+  "Comment": "A description of my state machine",
+  "StartAt": "lambda-trigger-glue",
+  "States": {
+    "lambda-trigger-glue": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:ap-south-1:905418216032:function:lambda-techno-glue-etl",
+        "Payload": {
+          "s3_location.$": "$.s3_location",
+          "s3_output_location.$": "$.s3_output_location"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "End": true
+    }
+  }
+}
